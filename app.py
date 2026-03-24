@@ -4,18 +4,17 @@ import pandas as pd
 import pickle
 
 # =====================
-# Load Model
+# Load Stroke Model
 # =====================
 
-with open("medical_healthcare_model.pkl", "rb") as f:
+with open("stroke_model.pkl", "rb") as f:
     model = pickle.load(f)
 
 app = FastAPI()
 
 @app.get("/")
 def root():
-    return {"message": "🏥 Healthcare Prediction API Running"}
-
+    return {"message": "🧠 Stroke Prediction API Running"}
 
 # =====================
 # Input Schema
@@ -38,9 +37,8 @@ class InputData(BaseModel):
     Asthma: float
     KidneyDisease: float
 
-
 # =====================
-# Predict
+# Predict Endpoint
 # =====================
 
 @app.post("/predict")
@@ -51,23 +49,12 @@ def predict(data: InputData):
         prediction = model.predict(df)
         probability = model.predict_proba(df)
 
-        # mapping
-        class_mapping = {
-            0: "Arthritis",
-            1: "Asthma",
-            2: "Cancer",
-            3: "Diabetes",
-            4: "Healthy",
-            5: "Hypertension",
-            6: "Obesity"
-        }
-
         pred = int(prediction[0])
 
         return {
             "prediction": pred,
-            "disease": class_mapping.get(pred, "Unknown"),
-            "probability": float(probability[0].max())
+            "disease": "Stroke" if pred == 1 else "No Stroke",
+            "probability": float(probability[0][1])
         }
 
     except Exception as e:
